@@ -1,5 +1,5 @@
 import type { Request, Response, NextFunction } from 'express';
-import { ZodError } from 'zod';
+import { z } from 'zod';
 import { logger } from '../infra/logger';
 
 class AppError extends Error {
@@ -29,10 +29,10 @@ const errorHandler = (err: Error, req: Request, res: Response, _next: NextFuncti
     requestId: req.requestId,
   });
 
-  if (err instanceof ZodError) {
-    const details = err.errors.map((e) => ({
-      field: e.path.join('.'),
-      message: e.message,
+  if (err instanceof z.ZodError) {
+    const details = err.issues.map((issue) => ({
+      field: issue.path.join('.'),
+      message: issue.message,
     }));
 
     res.status(400).json({

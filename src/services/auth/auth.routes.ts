@@ -28,9 +28,10 @@ authRouter.post(
       ...(user.brandId ? { brandId: user.brandId } : {}),
     };
 
-    const token = jwt.sign(payload, config.jwtSecret, {
-      expiresIn: config.jwtExpiresIn,
-    });
+    const signOptions: jwt.SignOptions = {
+      expiresIn: config.jwtExpiresIn as jwt.SignOptions['expiresIn'],
+    };
+    const token = jwt.sign(payload, config.jwtSecret, signOptions);
 
     logger.info({
       message: 'User logged in',
