@@ -1,5 +1,5 @@
 import type { Request, Response, NextFunction } from "express";
-import type { UserRole } from "../types/auth.types";
+import type { UserRole } from "types/auth.types";
 
 type AuthorizeMiddleware = (
   ...allowedRoles: UserRole[]
