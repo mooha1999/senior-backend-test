@@ -19,9 +19,10 @@ function createOrderRoutes({
 }: OrderRouteDeps): Router {
   const router = Router();
 
+  router.use(authMiddleware);
+
   router.post(
     "/",
-    authMiddleware,
     authorize(UserRole.CUSTOMER),
     asyncHandler(async (req, res) => {
       const body = createOrderSchema.parse(req.body);
@@ -36,7 +37,6 @@ function createOrderRoutes({
 
   router.get(
     "/",
-    authMiddleware,
     asyncHandler(async (req, res) => {
       const orders = orderService.getOrders(req.user!);
       res.status(200).json(orders);
@@ -45,7 +45,6 @@ function createOrderRoutes({
 
   router.get(
     "/:id",
-    authMiddleware,
     asyncHandler(async (req, res) => {
       const id = req.params.id as string;
       const order = orderService.getOrderById(id, req.user!);
