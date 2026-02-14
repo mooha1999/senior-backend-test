@@ -1,28 +1,34 @@
-import { EventEmitter } from 'events';
-import { logger } from '../logger';
-import type { EventName, EventPayload } from './types';
+import { EventEmitter } from "events";
+import type { ILogger } from "../interfaces/logger.interface";
+import type { IEventBus } from "../interfaces/event-bus.interface";
+import type { EventName, EventPayload } from "./types";
 
-class EventBus {
+class EventBus implements IEventBus {
   private emitter: EventEmitter;
 
-  constructor() {
+  constructor(private readonly logger: ILogger) {
     this.emitter = new EventEmitter();
     this.emitter.setMaxListeners(50);
   }
 
-  on<T extends EventName>(event: T, handler: (payload: EventPayload<T>) => Promise<void>): void {
+  on<T extends EventName>(
+    event: T,
+    handler: (payload: EventPayload<T>) => Promise<void>,
+  ): void {
     this.emitter.on(event, handler);
   }
 
   emit<T extends EventName>(event: T, payload: EventPayload<T>): void {
-    logger.info({
+    this.logger.info({
       message: `[EVENT] ${event} - OrderID: ${payload.orderId}`,
       event,
       orderId: payload.orderId,
       eventId: payload.eventId,
     });
 
-    const listeners = this.emitter.listeners(event) as Array<(payload: EventPayload<T>) => Promise<void>>;
+    const listeners = this.emitter.listeners(event) as Array<
+      (payload: EventPayload<T>) => Promise<void>
+    >;
 
     for (const handler of listeners) {
       (async () => {
@@ -30,7 +36,7 @@ class EventBus {
           await handler(payload);
         } catch (err: unknown) {
           const error = err instanceof Error ? err : new Error(String(err));
-          logger.error({
+          this.logger.error({
             message: `Event handler error for ${event}`,
             event,
             orderId: payload.orderId,
@@ -48,6 +54,4 @@ class EventBus {
   }
 }
 
-const eventBus = new EventBus();
-
-export { EventBus, eventBus };
+export { EventBus };

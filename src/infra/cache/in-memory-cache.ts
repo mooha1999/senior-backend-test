@@ -1,36 +1,39 @@
-import { logger } from '../logger';
-import type { CacheEntry, ICache } from './types';
+import type { ILogger } from "../interfaces/logger.interface";
+import type { ICache } from "../interfaces/cache.interface";
+import type { CacheEntry } from "./types";
 
 class InMemoryCache implements ICache {
   private store: Map<string, CacheEntry<unknown>> = new Map();
+
+  constructor(private readonly logger: ILogger) {}
 
   get<T>(key: string): T | null {
     const entry = this.store.get(key);
 
     if (!entry) {
-      logger.debug({ message: 'Cache miss', key });
+      this.logger.debug({ message: "Cache miss", key });
       return null;
     }
 
     if (entry.expiresAt <= Date.now()) {
       this.store.delete(key);
-      logger.debug({ message: 'Cache miss', key });
+      this.logger.debug({ message: "Cache miss", key });
       return null;
     }
 
-    logger.info({ message: 'Cache hit', key });
+    this.logger.info({ message: "Cache hit", key });
     return entry.value as T;
   }
 
   set<T>(key: string, value: T, ttlSeconds: number): void {
     const expiresAt = Date.now() + ttlSeconds * 1000;
     this.store.set(key, { value, expiresAt });
-    logger.info({ message: 'Cache set', key, ttl: ttlSeconds });
+    this.logger.info({ message: "Cache set", key, ttl: ttlSeconds });
   }
 
   invalidate(key: string): void {
     this.store.delete(key);
-    logger.info({ message: 'Cache invalidated', key });
+    this.logger.info({ message: "Cache invalidated", key });
   }
 
   has(key: string): boolean {
@@ -49,6 +52,4 @@ class InMemoryCache implements ICache {
   }
 }
 
-const cache = new InMemoryCache();
-
-export { InMemoryCache, cache };
+export { InMemoryCache };

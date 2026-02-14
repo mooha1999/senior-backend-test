@@ -1,4 +1,5 @@
-export { EventBus, eventBus } from './event-bus';
+export { EventBus } from "./event-bus";
+export type { IEventBus } from "../interfaces/event-bus.interface";
 export type {
   BaseEvent,
   OrderCreatedEvent,
@@ -10,4 +11,4 @@ export type {
   EventMap,
   EventName,
   EventPayload,
-} from './types';
+} from "./types";

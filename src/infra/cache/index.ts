@@ -1,2 +1,3 @@
-export { InMemoryCache, cache } from './in-memory-cache';
-export type { CacheEntry, ICache } from './types';
+export { InMemoryCache } from "./in-memory-cache";
+export type { ICache } from "../interfaces/cache.interface";
+export type { CacheEntry } from "./types";

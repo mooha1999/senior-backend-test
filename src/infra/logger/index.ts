@@ -1,2 +1,2 @@
-export { logger } from './logger';
-export type { LogContext } from './logger';
+export { StructuredLogger } from "./logger";
+export type { ILogger, LogContext } from "../interfaces/logger.interface";
