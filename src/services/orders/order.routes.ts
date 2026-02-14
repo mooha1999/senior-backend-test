@@ -1,22 +1,22 @@
-import { Router } from 'express';
-import { v4 as uuidv4 } from 'uuid';
-import { logger } from '../../infra/logger';
-import { eventBus } from '../../infra/event-bus';
-import { cache } from '../../infra/cache';
-import { config } from '../../config';
-import { authMiddleware } from '../../middleware/auth.middleware';
-import { authorize } from '../../middleware/rbac.middleware';
-import { asyncHandler } from '../../middleware/error-handler';
-import { UserRole } from '../auth/auth.types';
-import { orderStore } from './order.store';
-import { createOrderSchema } from './order.validation';
-import { OrderStatus } from './order.types';
-import type { Order } from './order.types';
+import { Router } from "express";
+import { v4 as uuidv4 } from "uuid";
+import { logger } from "@infra/logger";
+import { eventBus } from "@infra/event-bus";
+import { cache } from "@infra/cache";
+import { config } from "@config";
+import { authMiddleware } from "@middleware/auth.middleware";
+import { authorize } from "@middleware/rbac.middleware";
+import { asyncHandler } from "@middleware/error-handler";
+import { UserRole } from "../auth/auth.types";
+import { orderStore } from "./order.store";
+import { createOrderSchema } from "./order.validation";
+import { OrderStatus } from "./order.types";
+import type { Order } from "./order.types";
 
 const orderRouter = Router();
 
 orderRouter.post(
-  '/',
+  "/",
   authMiddleware,
   authorize(UserRole.CUSTOMER),
   asyncHandler(async (req, res) => {
@@ -35,13 +35,13 @@ orderRouter.post(
     orderStore.save(order);
 
     logger.info({
-      message: 'Order created',
+      message: "Order created",
       orderId: order.id,
       status: order.status,
     });
 
-    eventBus.emit('order.created', {
-      type: 'order.created',
+    eventBus.emit("order.created", {
+      type: "order.created",
       eventId: uuidv4(),
       orderId: order.id,
       timestamp: Date.now(),
@@ -51,11 +51,11 @@ orderRouter.post(
     });
 
     res.status(201).json(order);
-  })
+  }),
 );
 
 orderRouter.get(
-  '/',
+  "/",
   authMiddleware,
   asyncHandler(async (req, res) => {
     const user = req.user!;
@@ -64,19 +64,23 @@ orderRouter.get(
     if (user.role === UserRole.ADMIN) {
       orders = orderStore.findAll();
     } else if (user.role === UserRole.BRAND) {
-      orders = orderStore.findAll().filter((order) =>
-        order.items.some((item) => item.productId.startsWith(user.brandId || ''))
-      );
+      orders = orderStore
+        .findAll()
+        .filter((order) =>
+          order.items.some((item) =>
+            item.productId.startsWith(user.brandId || ""),
+          ),
+        );
     } else {
       orders = orderStore.findByCustomerId(user.userId);
     }
 
     res.status(200).json(orders);
-  })
+  }),
 );
 
 orderRouter.get(
-  '/:id',
+  "/:id",
   authMiddleware,
   asyncHandler(async (req, res) => {
     const id = req.params.id as string;
@@ -86,7 +90,7 @@ orderRouter.get(
     const cached = cache.get<Order>(cacheKey);
     if (cached) {
       if (!canAccessOrder(user, cached)) {
-        res.status(404).json({ error: 'Order not found' });
+        res.status(404).json({ error: "Order not found" });
         return;
       }
       res.status(200).json(cached);
@@ -95,29 +99,31 @@ orderRouter.get(
 
     const order = orderStore.findById(id);
     if (!order) {
-      res.status(404).json({ error: 'Order not found' });
+      res.status(404).json({ error: "Order not found" });
       return;
     }
 
     if (!canAccessOrder(user, order)) {
-      res.status(404).json({ error: 'Order not found' });
+      res.status(404).json({ error: "Order not found" });
       return;
     }
 
     cache.set(cacheKey, order, config.cacheTtlSeconds);
     res.status(200).json(order);
-  })
+  }),
 );
 
 function canAccessOrder(
   user: { role: string; userId: string; brandId?: string },
-  order: Order
+  order: Order,
 ): boolean {
   if (user.role === UserRole.ADMIN) {
     return true;
   }
   if (user.role === UserRole.BRAND) {
-    return order.items.some((item) => item.productId.startsWith(user.brandId || ''));
+    return order.items.some((item) =>
+      item.productId.startsWith(user.brandId || ""),
+    );
   }
   return order.customerId === user.userId;
 }

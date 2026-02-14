@@ -1,12 +1,13 @@
-import express from 'express';
-import swaggerJsdoc from 'swagger-jsdoc';
-import swaggerUi from 'swagger-ui-express';
-import { requestIdMiddleware } from './middleware/request-id.middleware';
-import { requestLoggerMiddleware } from './middleware/request-logger';
-import { errorHandler } from './middleware/error-handler';
-import { authRouter } from './services/auth';
-import { orderRouter } from './services/orders';
-import { swaggerOptions } from './config/swagger';
+import express from "express";
+import swaggerJsdoc from "swagger-jsdoc";
+import swaggerUi from "swagger-ui-express";
+import { requestIdMiddleware } from "./middleware/request-id.middleware";
+import { requestLoggerMiddleware } from "./middleware/request-logger";
+import { errorHandler } from "./middleware/error-handler";
+import { authRouter } from "./services/auth";
+import { orderRouter } from "./services/orders";
+import { swaggerOptions } from "./config/swagger";
+import PATHS from "./paths";
 
 const app = express();
 
@@ -15,8 +16,8 @@ app.use(express.json());
 
 // Swagger docs
 const swaggerSpec = swaggerJsdoc(swaggerOptions);
-app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
-app.get('/api-docs.json', (_req, res) => {
+app.use(PATHS.API_DOCS, swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+app.get(PATHS.API_DOCS_JSON, (_req, res) => {
   res.json(swaggerSpec);
 });
 
@@ -27,13 +28,13 @@ app.use(requestIdMiddleware);
 app.use(requestLoggerMiddleware);
 
 // Routes
-app.use('/auth', authRouter);
-app.use('/orders', orderRouter);
+app.use(PATHS.AUTH, authRouter);
+app.use(PATHS.ORDERS, orderRouter);
 
 // Health check
-app.get('/health', (_req, res) => {
+app.get(PATHS.HEALTH, (_req, res) => {
   res.status(200).json({
-    status: 'ok',
+    status: "ok",
     timestamp: new Date().toISOString(),
   });
 });

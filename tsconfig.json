@@ -2,7 +2,9 @@
   "compilerOptions": {
     "target": "ES2022",
     "module": "commonjs",
-    "lib": ["ES2022"],
+    "lib": [
+      "ES2022"
+    ],
     "outDir": "./dist",
     "rootDir": "./src",
     "strict": true,
@@ -15,12 +17,28 @@
     "sourceMap": true,
     "baseUrl": "./src",
     "paths": {
-      "@infra/*": ["infra/*"],
-      "@services/*": ["services/*"],
-      "@middleware/*": ["middleware/*"],
-      "@config/*": ["config/*"]
+      "@infra/*": [
+        "infra/*"
+      ],
+      "@services/*": [
+        "services/*"
+      ],
+      "@middleware/*": [
+        "middleware/*"
+      ],
+      "@config": [
+        "config/index"
+      ],
+      "@config/*": [
+        "config/*"
+      ]
     }
   },
-  "include": ["src/**/*"],
-  "exclude": ["node_modules", "dist"]
+  "include": [
+    "src/**/*"
+  ],
+  "exclude": [
+    "node_modules",
+    "dist"
+  ]
 }

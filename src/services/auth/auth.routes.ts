@@ -1,23 +1,24 @@
-import { Router } from 'express';
-import jwt from 'jsonwebtoken';
-import { config } from '../../config';
-import { logger } from '../../infra/logger';
-import { asyncHandler } from '../../middleware/error-handler';
-import { authStore } from './auth.store';
-import { loginSchema } from './auth.validation';
-import type { JwtPayload } from './auth.types';
+import { Router } from "express";
+import jwt from "jsonwebtoken";
+import { config } from "../../config";
+import { logger } from "../../infra/logger";
+import { asyncHandler } from "../../middleware/error-handler";
+import { authStore } from "./auth.store";
+import { loginSchema } from "./auth.validation";
+import type { JwtPayload } from "./auth.types";
+import PATHS from "./paths";
 
 const authRouter = Router();
 
 authRouter.post(
-  '/login',
+  PATHS.LOGIN,
   asyncHandler(async (req, res) => {
     const body = loginSchema.parse(req.body);
 
     const user = authStore.findByEmail(body.email);
 
     if (!user || user.password !== body.password) {
-      res.status(401).json({ error: 'Invalid credentials' });
+      res.status(401).json({ error: "Invalid credentials" });
       return;
     }
 
@@ -29,12 +30,12 @@ authRouter.post(
     };
 
     const signOptions: jwt.SignOptions = {
-      expiresIn: config.jwtExpiresIn as jwt.SignOptions['expiresIn'],
+      expiresIn: config.jwtExpiresIn as jwt.SignOptions["expiresIn"],
     };
     const token = jwt.sign(payload, config.jwtSecret, signOptions);
 
     logger.info({
-      message: 'User logged in',
+      message: "User logged in",
       userId: user.id,
       email: user.email,
       role: user.role,
@@ -48,7 +49,7 @@ authRouter.post(
         role: user.role,
       },
     });
-  })
+  }),
 );
 
 export { authRouter };
