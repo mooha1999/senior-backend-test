@@ -1,42 +1,43 @@
-import type { User } from './auth.types';
-import { UserRole } from './auth.types';
+import type { User } from "./auth.types";
+import type { IAuthStore } from "./interfaces/auth-store.interface";
+import { UserRole } from "./auth.types";
 
 const seededUsers: User[] = [
   {
-    id: 'user-admin-1',
-    email: 'admin@marketplace.com',
-    password: 'admin123',
+    id: "user-admin-1",
+    email: "admin@marketplace.com",
+    password: "admin123",
     role: UserRole.ADMIN,
   },
   {
-    id: 'user-brand-1',
-    email: 'brand@marketplace.com',
-    password: 'brand123',
+    id: "user-brand-1",
+    email: "brand@marketplace.com",
+    password: "brand123",
     role: UserRole.BRAND,
-    brandId: 'brand1',
+    brandId: "brand1",
   },
   {
-    id: 'user-brand-2',
-    email: 'brand2@marketplace.com',
-    password: 'brand456',
+    id: "user-brand-2",
+    email: "brand2@marketplace.com",
+    password: "brand456",
     role: UserRole.BRAND,
-    brandId: 'brand2',
+    brandId: "brand2",
   },
   {
-    id: 'user-customer-1',
-    email: 'customer@marketplace.com',
-    password: 'customer123',
+    id: "user-customer-1",
+    email: "customer@marketplace.com",
+    password: "customer123",
     role: UserRole.CUSTOMER,
   },
   {
-    id: 'user-customer-2',
-    email: 'customer2@marketplace.com',
-    password: 'customer456',
+    id: "user-customer-2",
+    email: "customer2@marketplace.com",
+    password: "customer456",
     role: UserRole.CUSTOMER,
   },
 ];
 
-class AuthStore {
+class AuthStore implements IAuthStore {
   private users: Map<string, User>;
 
   constructor() {
@@ -60,6 +61,4 @@ class AuthStore {
   }
 }
 
-const authStore = new AuthStore();
-
-export { AuthStore, authStore };
+export { AuthStore };

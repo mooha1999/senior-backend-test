@@ -1,7 +1,8 @@
-import type { Order } from './order.types';
-import { OrderStatus } from './order.types';
+import type { Order } from "./order.types";
+import type { IOrderStore } from "./interfaces/order-store.interface";
+import { OrderStatus } from "./order.types";
 
-class OrderStore {
+class OrderStore implements IOrderStore {
   private orders: Map<string, Order> = new Map();
 
   save(order: Order): void {
@@ -18,7 +19,7 @@ class OrderStore {
 
   findByCustomerId(customerId: string): Order[] {
     return Array.from(this.orders.values()).filter(
-      (order) => order.customerId === customerId
+      (order) => order.customerId === customerId,
     );
   }
 
@@ -34,6 +35,4 @@ class OrderStore {
   }
 }
 
-const orderStore = new OrderStore();
-
-export { OrderStore, orderStore };
+export { OrderStore };

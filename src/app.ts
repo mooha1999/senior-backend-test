@@ -1,45 +1,125 @@
-import express from "express";
+import express, { type Express } from "express";
 import swaggerJsdoc from "swagger-jsdoc";
 import swaggerUi from "swagger-ui-express";
-import { requestIdMiddleware } from "./middleware/request-id.middleware";
-import { requestLoggerMiddleware } from "./middleware/request-logger";
-import { errorHandler } from "./middleware/error-handler";
-import { authRouter } from "./services/auth";
-import { orderRouter } from "./services/orders";
+import { config } from "./config";
 import { swaggerOptions } from "./config/swagger";
 import PATHS from "./paths";
 
-const app = express();
+// Infra
+import { StructuredLogger } from "./infra/logger";
+import { EventBus } from "./infra/event-bus";
+import { InMemoryCache } from "./infra/cache";
+import { JwtTokenProvider } from "./infra/token-provider";
 
-// Body parsing
-app.use(express.json());
+// Middleware
+import { requestIdMiddleware } from "./middleware/request-id.middleware";
+import { createRequestLogger } from "./middleware/request-logger";
+import { createAuthMiddleware } from "./middleware/auth.middleware";
+import { authorize } from "./middleware/rbac.middleware";
+import { createErrorHandler } from "./middleware/error-handler";
 
-// Swagger docs
-const swaggerSpec = swaggerJsdoc(swaggerOptions);
-app.use(PATHS.API_DOCS, swaggerUi.serve, swaggerUi.setup(swaggerSpec));
-app.get(PATHS.API_DOCS_JSON, (_req, res) => {
-  res.json(swaggerSpec);
-});
+// Stores
+import { AuthStore } from "./services/auth";
+import { OrderStore } from "./services/orders";
 
-// Request ID generation/propagation
-app.use(requestIdMiddleware);
+// Services
+import { AuthService } from "./services/auth";
+import { OrderService } from "./services/orders";
+import { PaymentService } from "./services/payments";
+import { StockService } from "./services/stock";
+import { DeliveryService } from "./services/delivery";
 
-// Request logging
-app.use(requestLoggerMiddleware);
+// Route factories
+import { createAuthRoutes } from "./services/auth";
+import { createOrderRoutes } from "./services/orders";
 
-// Routes
-app.use(PATHS.AUTH, authRouter);
-app.use(PATHS.ORDERS, orderRouter);
+import type { IEventBus } from "./infra/event-bus";
 
-// Health check
-app.get(PATHS.HEALTH, (_req, res) => {
-  res.status(200).json({
-    status: "ok",
-    timestamp: new Date().toISOString(),
+interface AppContext {
+  app: Express;
+  eventBus: IEventBus;
+}
+
+function createApp(): AppContext {
+  const app = express();
+
+  // Infra instantiation
+  const logger = new StructuredLogger();
+  const eventBus = new EventBus(logger);
+  const cache = new InMemoryCache(logger);
+  const tokenProvider = new JwtTokenProvider(
+    config.jwtSecret,
+    config.jwtExpiresIn,
+  );
+
+  // Stores
+  const authStore = new AuthStore();
+  const orderStore = new OrderStore();
+
+  // Services
+  const authService = new AuthService(authStore, tokenProvider, logger);
+  const orderService = new OrderService(
+    orderStore,
+    eventBus,
+    cache,
+    logger,
+    config.cacheTtlSeconds,
+  );
+  const paymentService = new PaymentService(eventBus, logger, {
+    successRate: config.paymentSuccessRate,
+    maxRetries: config.paymentMaxRetries,
+    retryBaseDelayMs: config.paymentRetryBaseDelayMs,
   });
-});
+  const stockService = new StockService(eventBus, logger, {
+    successRate: config.stockSuccessRate,
+  });
+  const deliveryService = new DeliveryService(eventBus, logger);
 
-// Global error handler (must be last)
-app.use(errorHandler);
+  // Register event handlers
+  orderService.registerHandlers();
+  paymentService.registerHandlers();
+  stockService.registerHandlers();
+  deliveryService.registerHandlers();
 
-export { app };
+  // Middleware
+  const authMiddleware = createAuthMiddleware(tokenProvider);
+
+  // Body parsing
+  app.use(express.json());
+
+  // Swagger docs
+  const swaggerSpec = swaggerJsdoc(swaggerOptions);
+  app.use(PATHS.API_DOCS, swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+  app.get(PATHS.API_DOCS_JSON, (_req, res) => {
+    res.json(swaggerSpec);
+  });
+
+  // Request ID generation/propagation
+  app.use(requestIdMiddleware);
+
+  // Request logging
+  app.use(createRequestLogger(logger));
+
+  // Routes
+  app.use(PATHS.AUTH, createAuthRoutes({ authService }));
+  app.use(
+    PATHS.ORDERS,
+    createOrderRoutes({ orderService, authMiddleware, authorize }),
+  );
+
+  // Health check
+  app.get(PATHS.HEALTH, (_req, res) => {
+    res.status(200).json({
+      status: "ok",
+      timestamp: new Date().toISOString(),
+    });
+  });
+
+  // Global error handler (must be last)
+  app.use(createErrorHandler(logger));
+
+  return { app, eventBus };
+}
+
+export { createApp };
+export type { AppContext };

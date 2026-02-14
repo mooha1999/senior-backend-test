@@ -1,55 +1,27 @@
 import { Router } from "express";
-import jwt from "jsonwebtoken";
-import { config } from "../../config";
-import { logger } from "../../infra/logger";
-import { asyncHandler } from "../../middleware/error-handler";
-import { authStore } from "./auth.store";
+import { asyncHandler } from "@middleware/error-handler";
 import { loginSchema } from "./auth.validation";
-import type { JwtPayload } from "./auth.types";
+import type { IAuthService } from "./interfaces/auth-service.interface";
 import PATHS from "./paths";
 
-const authRouter = Router();
+interface AuthRouteDeps {
+  authService: IAuthService;
+}
 
-authRouter.post(
-  PATHS.LOGIN,
-  asyncHandler(async (req, res) => {
-    const body = loginSchema.parse(req.body);
+function createAuthRoutes({ authService }: AuthRouteDeps): Router {
+  const router = Router();
 
-    const user = authStore.findByEmail(body.email);
+  router.post(
+    PATHS.LOGIN,
+    asyncHandler(async (req, res) => {
+      const body = loginSchema.parse(req.body);
+      const result = await authService.login(body);
+      res.status(200).json(result);
+    }),
+  );
 
-    if (!user || user.password !== body.password) {
-      res.status(401).json({ error: "Invalid credentials" });
-      return;
-    }
+  return router;
+}
 
-    const payload: JwtPayload = {
-      userId: user.id,
-      email: user.email,
-      role: user.role,
-      ...(user.brandId ? { brandId: user.brandId } : {}),
-    };
-
-    const signOptions: jwt.SignOptions = {
-      expiresIn: config.jwtExpiresIn as jwt.SignOptions["expiresIn"],
-    };
-    const token = jwt.sign(payload, config.jwtSecret, signOptions);
-
-    logger.info({
-      message: "User logged in",
-      userId: user.id,
-      email: user.email,
-      role: user.role,
-    });
-
-    res.status(200).json({
-      token,
-      user: {
-        id: user.id,
-        email: user.email,
-        role: user.role,
-      },
-    });
-  }),
-);
-
-export { authRouter };
+export { createAuthRoutes };
+export type { AuthRouteDeps };
