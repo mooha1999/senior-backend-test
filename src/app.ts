@@ -51,7 +51,8 @@ function createApp(): AppContext {
 
   // Infra instantiation
   const logger = new StructuredLogger();
-  const eventBus = new EventBus(logger);
+  const eventBusLogger = new StructuredLogger("EventBus");
+  const eventBus = new EventBus(eventBusLogger);
   const cache = new InMemoryCache(logger);
   const tokenProvider = new JwtTokenProvider(
     config.jwtSecret,
@@ -61,27 +62,27 @@ function createApp(): AppContext {
   // Stores
   const authStore = new AuthStore();
   const orderStore = new CachedOrderStore(
-    new OrderStore(logger),
+    new OrderStore(new StructuredLogger("OrderStore")),
     cache,
     config.cacheTtlSeconds,
   );
 
   // Services
-  const authService = new AuthService(authStore, tokenProvider, logger);
+  const authService = new AuthService(authStore, tokenProvider, new StructuredLogger("AuthService"));
   const orderService = new OrderService(
     orderStore,
     eventBus,
-    logger,
+    new StructuredLogger("OrderService"),
   );
-  const paymentService = new PaymentService(eventBus, logger, {
+  const paymentService = new PaymentService(eventBus, new StructuredLogger("PaymentService"), {
     successRate: config.paymentSuccessRate,
     maxRetries: config.paymentMaxRetries,
     retryBaseDelayMs: config.paymentRetryBaseDelayMs,
   });
-  const stockService = new StockService(eventBus, logger, {
+  const stockService = new StockService(eventBus, new StructuredLogger("StockService"), {
     successRate: config.stockSuccessRate,
   });
-  const deliveryService = new DeliveryService(eventBus, logger);
+  const deliveryService = new DeliveryService(eventBus, new StructuredLogger("DeliveryService"));
 
   // Register event handlers
   registerOrderHandlers({ eventBus, orderService });

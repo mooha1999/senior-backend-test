@@ -2,7 +2,7 @@ import { config } from "./config";
 import { StructuredLogger } from "./infra/logger";
 import { createApp } from "./app";
 
-const logger = new StructuredLogger();
+const logger = new StructuredLogger("Server");
 const { app, eventBus } = createApp();
 
 // Start server
