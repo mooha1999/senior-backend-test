@@ -63,6 +63,7 @@ function createApp(): AppContext {
   const orderStore = new CachedOrderStore(
     new OrderStore(),
     cache,
+    logger,
     config.cacheTtlSeconds,
   );
 

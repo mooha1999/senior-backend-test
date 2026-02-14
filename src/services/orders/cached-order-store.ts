@@ -1,5 +1,6 @@
 import type { IOrderStore } from "./interfaces/order-store.interface";
 import type { ICache } from "@infra/interfaces/cache.interface";
+import type { ILogger } from "@infra/interfaces/logger.interface";
 import type { Order } from "./order.types";
 import type { OrderStatus } from "./order.types";
 
@@ -7,6 +8,7 @@ class CachedOrderStore implements IOrderStore {
   constructor(
     private readonly store: IOrderStore,
     private readonly cache: ICache,
+    private readonly logger: ILogger,
     private readonly ttlSeconds: number,
   ) {}
 
@@ -18,11 +20,13 @@ class CachedOrderStore implements IOrderStore {
   findById(id: string): Order | undefined {
     const cached = this.cache.get<Order>(this.cacheKey(id));
     if (cached) {
+      this.logger.info({ message: "Response served from cache", orderId: id });
       return cached;
     }
 
     const order = this.store.findById(id);
     if (order) {
+      this.logger.info({ message: "Response served from memory store", orderId: id });
       this.cache.set(this.cacheKey(id), order, this.ttlSeconds);
     }
     return order;
