@@ -32,6 +32,12 @@ docker compose down             # stop
 
 Runs on port 3000. Health check built in.
 
+## API Documentation
+
+**Swagger UI**: `http://localhost:3000/api-docs` — interactive docs for all endpoints.
+
+**Postman Collection**: Import `postman/Marketplace_API.postman_collection.json` into Postman. Includes full flows (login → create orders → view orders) across all roles with auto-chained tokens. Use the Collection Runner to execute end-to-end.
+
 ## Tests
 
 ```bash
