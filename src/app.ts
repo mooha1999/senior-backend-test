@@ -29,6 +29,12 @@ import { PaymentService } from "./services/payments";
 import { StockService } from "./services/stock";
 import { DeliveryService } from "./services/delivery";
 
+// Event handlers
+import { registerOrderHandlers } from "./services/orders";
+import { registerPaymentHandlers } from "./services/payments";
+import { registerStockHandlers } from "./services/stock";
+import { registerDeliveryHandlers } from "./services/delivery";
+
 // Route factories
 import { createAuthRoutes } from "./services/auth";
 import { createOrderRoutes } from "./services/orders";
@@ -76,10 +82,10 @@ function createApp(): AppContext {
   const deliveryService = new DeliveryService(eventBus, logger);
 
   // Register event handlers
-  orderService.registerHandlers();
-  paymentService.registerHandlers();
-  stockService.registerHandlers();
-  deliveryService.registerHandlers();
+  registerOrderHandlers({ eventBus, orderService });
+  registerPaymentHandlers({ eventBus, paymentService });
+  registerStockHandlers({ eventBus, stockService });
+  registerDeliveryHandlers({ eventBus, deliveryService });
 
   // Middleware
   const authMiddleware = createAuthMiddleware(tokenProvider);

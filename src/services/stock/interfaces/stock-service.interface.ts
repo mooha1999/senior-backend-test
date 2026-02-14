@@ -1,5 +1,7 @@
+import type { PaymentSuccessEvent } from "@infra/event-bus";
+
 interface IStockService {
-  registerHandlers(): void;
+  handlePaymentSuccess(event: PaymentSuccessEvent): Promise<void>;
 }
 
 export type { IStockService };

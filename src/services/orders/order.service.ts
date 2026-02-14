@@ -98,31 +98,18 @@ class OrderService implements IOrderService {
     return order;
   }
 
-  registerHandlers(): void {
-    this.registerStatusHandler(EVENT_NAMES.PAYMENT_SUCCESS, OrderStatus.PAID);
-    this.registerStatusHandler(EVENT_NAMES.PAYMENT_FAILED, OrderStatus.PAYMENT_FAILED);
-    this.registerStatusHandler(EVENT_NAMES.STOCK_UPDATED, OrderStatus.STOCK_CONFIRMED);
-    this.registerStatusHandler(EVENT_NAMES.STOCK_FAILED, OrderStatus.STOCK_FAILED);
-    this.registerStatusHandler(EVENT_NAMES.DELIVERY_SCHEDULED, OrderStatus.COMPLETED);
-  }
-
-  private registerStatusHandler(
-    event: typeof EVENT_NAMES.PAYMENT_SUCCESS | typeof EVENT_NAMES.PAYMENT_FAILED | typeof EVENT_NAMES.STOCK_UPDATED | typeof EVENT_NAMES.STOCK_FAILED | typeof EVENT_NAMES.DELIVERY_SCHEDULED,
-    newStatus: OrderStatus,
-  ): void {
-    this.eventBus.on(event, async (payload) => {
-      const previous = this.orderStore.findById(payload.orderId);
-      const order = this.orderStore.updateStatus(payload.orderId, newStatus);
-      if (order) {
-        this.cache.invalidate(`order:${payload.orderId}`);
-        this.logger.info({
-          message: "Order status updated",
-          orderId: payload.orderId,
-          from: previous?.status,
-          to: newStatus,
-        });
-      }
-    });
+  updateOrderStatus(orderId: string, newStatus: OrderStatus): void {
+    const previous = this.orderStore.findById(orderId);
+    const order = this.orderStore.updateStatus(orderId, newStatus);
+    if (order) {
+      this.cache.invalidate(`order:${orderId}`);
+      this.logger.info({
+        message: "Order status updated",
+        orderId,
+        from: previous?.status,
+        to: newStatus,
+      });
+    }
   }
 
   private canAccessOrder(user: JwtPayload, order: Order): boolean {

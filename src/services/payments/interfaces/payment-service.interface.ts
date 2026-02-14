@@ -1,5 +1,7 @@
+import type { OrderCreatedEvent } from "@infra/event-bus";
+
 interface IPaymentService {
-  registerHandlers(): void;
+  handleOrderCreated(event: OrderCreatedEvent): Promise<void>;
 }
 
 export type { IPaymentService };

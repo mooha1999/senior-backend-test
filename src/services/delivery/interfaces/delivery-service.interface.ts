@@ -1,5 +1,7 @@
+import type { StockUpdatedEvent } from "@infra/event-bus";
+
 interface IDeliveryService {
-  registerHandlers(): void;
+  handleStockUpdated(event: StockUpdatedEvent): Promise<void>;
 }
 
 export type { IDeliveryService };

@@ -2,6 +2,7 @@ export { createOrderRoutes } from "./order.routes";
 export type { OrderRouteDeps } from "./order.routes";
 export { OrderService } from "./order.service";
 export { OrderStore } from "./order.store";
+export { registerOrderHandlers } from "./order.handlers";
 export { OrderStatus } from "./order.types";
 export type { Order, OrderItem } from "./order.types";
 export { createOrderSchema } from "./order.validation";
