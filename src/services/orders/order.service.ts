@@ -86,12 +86,13 @@ class OrderService implements IOrderService {
 
   updateOrderStatus(orderId: string, newStatus: OrderStatus): void {
     const previous = this.orderStore.findById(orderId);
+    const previousStatus = previous?.status; // Need to do this because the updateStatus modify the same object reference
     const order = this.orderStore.updateStatus(orderId, newStatus);
     if (order) {
       this.logger.info({
         message: "Order status updated",
         orderId,
-        from: previous?.status,
+        from: previousStatus,
         to: newStatus,
       });
     }
