@@ -5,7 +5,7 @@ interface IEventBus {
     event: T,
     handler: (payload: EventPayload<T>) => Promise<void>,
   ): void;
-  emit<T extends EventName>(event: T, payload: EventPayload<T>): void;
+  emit<T extends EventName>(event: T, payload: EventPayload<T>, service: string): void;
   removeAllListeners(): void;
 }
 

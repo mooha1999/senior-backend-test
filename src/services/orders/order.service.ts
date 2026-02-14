@@ -48,7 +48,7 @@ class OrderService implements IOrderService {
       requestId,
       customerId: order.customerId,
       items: order.items,
-    });
+    }, "OrderService");
 
     return order;
   }

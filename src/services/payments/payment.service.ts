@@ -46,7 +46,7 @@ class PaymentService implements IPaymentService {
           timestamp: Date.now(),
           requestId: event.requestId,
           amount,
-        });
+        }, "PaymentService");
         break;
       }
 
@@ -65,7 +65,7 @@ class PaymentService implements IPaymentService {
         timestamp: Date.now(),
         requestId: event.requestId,
         reason: `Payment declined after ${this.config.maxRetries} attempts`,
-      });
+      }, "PaymentService");
     }
   }
 

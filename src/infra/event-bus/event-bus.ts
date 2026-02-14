@@ -18,10 +18,10 @@ class EventBus implements IEventBus {
     this.emitter.on(event, handler);
   }
 
-  emit<T extends EventName>(event: T, payload: EventPayload<T>): void {
+  emit<T extends EventName>(event: T, payload: EventPayload<T>, service: string): void {
     this.logger.info({
       message: `[EVENT] ${event} - OrderID: ${payload.orderId}`,
-      service: "EventBus",
+      service,
       event,
       orderId: payload.orderId,
       eventId: payload.eventId,
@@ -39,7 +39,7 @@ class EventBus implements IEventBus {
           const error = err instanceof Error ? err : new Error(String(err));
           this.logger.error({
             message: `Event handler error for ${event}`,
-            service: "EventBus",
+            service,
             event,
             orderId: payload.orderId,
             eventId: payload.eventId,

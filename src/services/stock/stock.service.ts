@@ -44,7 +44,7 @@ class StockService implements IStockService {
         orderId: event.orderId,
         timestamp: Date.now(),
         requestId: event.requestId,
-      });
+      }, "StockService");
     } else {
       this.eventBus.emit(EVENT_NAMES.STOCK_FAILED, {
         type: EVENT_NAMES.STOCK_FAILED,
@@ -53,7 +53,7 @@ class StockService implements IStockService {
         timestamp: Date.now(),
         requestId: event.requestId,
         reason: "Insufficient stock",
-      });
+      }, "StockService");
     }
   }
 }

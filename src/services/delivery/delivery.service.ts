@@ -41,7 +41,7 @@ class DeliveryService implements IDeliveryService {
       timestamp: Date.now(),
       requestId: event.requestId,
       estimatedDelivery,
-    });
+    }, "DeliveryService");
   }
 }
 
