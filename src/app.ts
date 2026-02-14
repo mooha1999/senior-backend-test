@@ -61,9 +61,8 @@ function createApp(): AppContext {
   // Stores
   const authStore = new AuthStore();
   const orderStore = new CachedOrderStore(
-    new OrderStore(),
+    new OrderStore(logger),
     cache,
-    logger,
     config.cacheTtlSeconds,
   );
 
