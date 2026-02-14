@@ -5,57 +5,57 @@ interface BaseEvent {
   requestId?: string;
 }
 
+enum EVENT_NAMES {
+  ORDER_CREATED = "order.created",
+  PAYMENT_SUCCESS = "payment.success",
+  PAYMENT_FAILED = "payment.failed",
+  STOCK_UPDATED = "stock.updated",
+  STOCK_FAILED = "stock.failed",
+  DELIVERY_SCHEDULED = "delivery.scheduled",
+}
+
 interface OrderCreatedEvent extends BaseEvent {
-  type: 'order.created';
+  type: EVENT_NAMES.ORDER_CREATED;
   customerId: string;
   items: Array<{ productId: string; quantity: number }>;
 }
 
 interface PaymentSuccessEvent extends BaseEvent {
-  type: 'payment.success';
+  type: EVENT_NAMES.PAYMENT_SUCCESS;
   amount: number;
 }
 
 interface PaymentFailedEvent extends BaseEvent {
-  type: 'payment.failed';
+  type: EVENT_NAMES.PAYMENT_FAILED;
   reason: string;
 }
 
 interface StockUpdatedEvent extends BaseEvent {
-  type: 'stock.updated';
+  type: EVENT_NAMES.STOCK_UPDATED;
 }
 
 interface StockFailedEvent extends BaseEvent {
-  type: 'stock.failed';
+  type: EVENT_NAMES.STOCK_FAILED;
   reason: string;
 }
 
 interface DeliveryScheduledEvent extends BaseEvent {
-  type: 'delivery.scheduled';
+  type: EVENT_NAMES.DELIVERY_SCHEDULED;
   estimatedDelivery: string;
 }
 
 interface EventMap {
-  'order.created': OrderCreatedEvent;
-  'payment.success': PaymentSuccessEvent;
-  'payment.failed': PaymentFailedEvent;
-  'stock.updated': StockUpdatedEvent;
-  'stock.failed': StockFailedEvent;
-  'delivery.scheduled': DeliveryScheduledEvent;
+  [EVENT_NAMES.ORDER_CREATED]: OrderCreatedEvent;
+  [EVENT_NAMES.PAYMENT_SUCCESS]: PaymentSuccessEvent;
+  [EVENT_NAMES.PAYMENT_FAILED]: PaymentFailedEvent;
+  [EVENT_NAMES.STOCK_UPDATED]: StockUpdatedEvent;
+  [EVENT_NAMES.STOCK_FAILED]: StockFailedEvent;
+  [EVENT_NAMES.DELIVERY_SCHEDULED]: DeliveryScheduledEvent;
 }
 
 type EventName = keyof EventMap;
 
 type EventPayload<T extends EventName> = EventMap[T];
-
-const EVENT_NAMES = {
-  ORDER_CREATED: "order.created",
-  PAYMENT_SUCCESS: "payment.success",
-  PAYMENT_FAILED: "payment.failed",
-  STOCK_UPDATED: "stock.updated",
-  STOCK_FAILED: "stock.failed",
-  DELIVERY_SCHEDULED: "delivery.scheduled",
-} as const satisfies Record<string, EventName>;
 
 export { EVENT_NAMES };
 export type {
