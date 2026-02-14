@@ -2,7 +2,6 @@ import { v4 as uuidv4 } from "uuid";
 import type { IOrderService } from "./interfaces/order-service.interface";
 import type { IOrderStore } from "./interfaces/order-store.interface";
 import type { IEventBus } from "@infra/interfaces/event-bus.interface";
-import type { ICache } from "@infra/interfaces/cache.interface";
 import type { ILogger } from "@infra/interfaces/logger.interface";
 import type { JwtPayload } from "@services/auth/auth.types";
 import type { Order } from "./order.types";
@@ -15,9 +14,7 @@ class OrderService implements IOrderService {
   constructor(
     private readonly orderStore: IOrderStore,
     private readonly eventBus: IEventBus,
-    private readonly cache: ICache,
     private readonly logger: ILogger,
-    private readonly cacheTtlSeconds: number,
   ) {}
 
   createOrder(
@@ -75,16 +72,6 @@ class OrderService implements IOrderService {
   }
 
   getOrderById(id: string, user: JwtPayload): Order | null {
-    const cacheKey = `order:${id}`;
-
-    const cached = this.cache.get<Order>(cacheKey);
-    if (cached) {
-      if (!this.canAccessOrder(user, cached)) {
-        return null;
-      }
-      return cached;
-    }
-
     const order = this.orderStore.findById(id);
     if (!order) {
       return null;
@@ -94,7 +81,6 @@ class OrderService implements IOrderService {
       return null;
     }
 
-    this.cache.set(cacheKey, order, this.cacheTtlSeconds);
     return order;
   }
 
@@ -102,7 +88,6 @@ class OrderService implements IOrderService {
     const previous = this.orderStore.findById(orderId);
     const order = this.orderStore.updateStatus(orderId, newStatus);
     if (order) {
-      this.cache.invalidate(`order:${orderId}`);
       this.logger.info({
         message: "Order status updated",
         orderId,

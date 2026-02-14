@@ -20,7 +20,7 @@ import { createErrorHandler } from "./middleware/error-handler";
 
 // Stores
 import { AuthStore } from "./services/auth";
-import { OrderStore } from "./services/orders";
+import { OrderStore, CachedOrderStore } from "./services/orders";
 
 // Services
 import { AuthService } from "./services/auth";
@@ -60,16 +60,18 @@ function createApp(): AppContext {
 
   // Stores
   const authStore = new AuthStore();
-  const orderStore = new OrderStore();
+  const orderStore = new CachedOrderStore(
+    new OrderStore(),
+    cache,
+    config.cacheTtlSeconds,
+  );
 
   // Services
   const authService = new AuthService(authStore, tokenProvider, logger);
   const orderService = new OrderService(
     orderStore,
     eventBus,
-    cache,
     logger,
-    config.cacheTtlSeconds,
   );
   const paymentService = new PaymentService(eventBus, logger, {
     successRate: config.paymentSuccessRate,
