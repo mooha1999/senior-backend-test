@@ -50,10 +50,9 @@ function createApp(): AppContext {
   const app = express();
 
   // Infra instantiation
-  const logger = new StructuredLogger();
   const eventBusLogger = new StructuredLogger("EventBus");
   const eventBus = new EventBus(eventBusLogger);
-  const cache = new InMemoryCache(logger);
+  const cache = new InMemoryCache(new StructuredLogger("Cache"));
   const tokenProvider = new JwtTokenProvider(
     config.jwtSecret,
     config.jwtExpiresIn,
@@ -107,7 +106,7 @@ function createApp(): AppContext {
   app.use(requestIdMiddleware);
 
   // Request logging
-  app.use(createRequestLogger(logger));
+  app.use(createRequestLogger(new StructuredLogger("HttpRequest")));
 
   // Routes
   app.use(PATHS.AUTH, createAuthRoutes({ authService }));
@@ -125,7 +124,7 @@ function createApp(): AppContext {
   });
 
   // Global error handler (must be last)
-  app.use(createErrorHandler(logger));
+  app.use(createErrorHandler(new StructuredLogger("ErrorHandler")));
 
   return { app, eventBus };
 }

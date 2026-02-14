@@ -20,7 +20,7 @@ class EventBus implements IEventBus {
 
   emit<T extends EventName>(event: T, payload: EventPayload<T>): void {
     this.logger.info({
-      message: `[EVENT] ${event} - OrderID: ${payload.orderId}`,
+      message: `${event} - OrderID: ${payload.orderId}`,
       event,
       orderId: payload.orderId,
       eventId: payload.eventId,
