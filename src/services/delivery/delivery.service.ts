@@ -2,6 +2,7 @@ import { v4 as uuidv4 } from "uuid";
 import type { IDeliveryService } from "./interfaces/delivery-service.interface";
 import type { IEventBus } from "@infra/interfaces/event-bus.interface";
 import type { ILogger } from "@infra/interfaces/logger.interface";
+import { EVENT_NAMES } from "@infra/event-bus";
 
 class DeliveryService implements IDeliveryService {
   private readonly processedEventIds = new Set<string>();
@@ -12,12 +13,12 @@ class DeliveryService implements IDeliveryService {
   ) {}
 
   registerHandlers(): void {
-    this.eventBus.on("stock.updated", async (event) => {
+    this.eventBus.on(EVENT_NAMES.STOCK_UPDATED, async (event) => {
       if (this.processedEventIds.has(event.eventId)) {
         this.logger.warn({
           message: "Duplicate event skipped",
           eventId: event.eventId,
-          event: "stock.updated",
+          event: EVENT_NAMES.STOCK_UPDATED,
         });
         return;
       }
@@ -33,8 +34,8 @@ class DeliveryService implements IDeliveryService {
         estimatedDelivery,
       });
 
-      this.eventBus.emit("delivery.scheduled", {
-        type: "delivery.scheduled",
+      this.eventBus.emit(EVENT_NAMES.DELIVERY_SCHEDULED, {
+        type: EVENT_NAMES.DELIVERY_SCHEDULED,
         eventId: uuidv4(),
         orderId: event.orderId,
         timestamp: Date.now(),

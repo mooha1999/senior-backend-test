@@ -9,6 +9,7 @@ import type { Order } from "./order.types";
 import type { CreateOrderInput } from "./order.validation";
 import { OrderStatus } from "./order.types";
 import { UserRole } from "@services/auth/auth.types";
+import { EVENT_NAMES } from "@infra/event-bus";
 
 class OrderService implements IOrderService {
   constructor(
@@ -42,8 +43,8 @@ class OrderService implements IOrderService {
       status: order.status,
     });
 
-    this.eventBus.emit("order.created", {
-      type: "order.created",
+    this.eventBus.emit(EVENT_NAMES.ORDER_CREATED, {
+      type: EVENT_NAMES.ORDER_CREATED,
       eventId: uuidv4(),
       orderId: order.id,
       timestamp: Date.now(),
@@ -98,15 +99,15 @@ class OrderService implements IOrderService {
   }
 
   registerHandlers(): void {
-    this.registerStatusHandler("payment.success", OrderStatus.PAID);
-    this.registerStatusHandler("payment.failed", OrderStatus.PAYMENT_FAILED);
-    this.registerStatusHandler("stock.updated", OrderStatus.STOCK_CONFIRMED);
-    this.registerStatusHandler("stock.failed", OrderStatus.STOCK_FAILED);
-    this.registerStatusHandler("delivery.scheduled", OrderStatus.COMPLETED);
+    this.registerStatusHandler(EVENT_NAMES.PAYMENT_SUCCESS, OrderStatus.PAID);
+    this.registerStatusHandler(EVENT_NAMES.PAYMENT_FAILED, OrderStatus.PAYMENT_FAILED);
+    this.registerStatusHandler(EVENT_NAMES.STOCK_UPDATED, OrderStatus.STOCK_CONFIRMED);
+    this.registerStatusHandler(EVENT_NAMES.STOCK_FAILED, OrderStatus.STOCK_FAILED);
+    this.registerStatusHandler(EVENT_NAMES.DELIVERY_SCHEDULED, OrderStatus.COMPLETED);
   }
 
   private registerStatusHandler(
-    event: "payment.success" | "payment.failed" | "stock.updated" | "stock.failed" | "delivery.scheduled",
+    event: typeof EVENT_NAMES.PAYMENT_SUCCESS | typeof EVENT_NAMES.PAYMENT_FAILED | typeof EVENT_NAMES.STOCK_UPDATED | typeof EVENT_NAMES.STOCK_FAILED | typeof EVENT_NAMES.DELIVERY_SCHEDULED,
     newStatus: OrderStatus,
   ): void {
     this.eventBus.on(event, async (payload) => {

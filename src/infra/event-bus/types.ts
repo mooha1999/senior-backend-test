@@ -48,6 +48,16 @@ type EventName = keyof EventMap;
 
 type EventPayload<T extends EventName> = EventMap[T];
 
+const EVENT_NAMES = {
+  ORDER_CREATED: "order.created",
+  PAYMENT_SUCCESS: "payment.success",
+  PAYMENT_FAILED: "payment.failed",
+  STOCK_UPDATED: "stock.updated",
+  STOCK_FAILED: "stock.failed",
+  DELIVERY_SCHEDULED: "delivery.scheduled",
+} as const satisfies Record<string, EventName>;
+
+export { EVENT_NAMES };
 export type {
   BaseEvent,
   OrderCreatedEvent,

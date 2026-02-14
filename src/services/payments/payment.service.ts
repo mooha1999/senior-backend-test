@@ -2,6 +2,7 @@ import { v4 as uuidv4 } from "uuid";
 import type { IPaymentService } from "./interfaces/payment-service.interface";
 import type { IEventBus } from "@infra/interfaces/event-bus.interface";
 import type { ILogger } from "@infra/interfaces/logger.interface";
+import { EVENT_NAMES } from "@infra/event-bus";
 
 interface PaymentServiceConfig {
   successRate: number;
@@ -19,12 +20,12 @@ class PaymentService implements IPaymentService {
   ) {}
 
   registerHandlers(): void {
-    this.eventBus.on("order.created", async (event) => {
+    this.eventBus.on(EVENT_NAMES.ORDER_CREATED, async (event) => {
       if (this.processedEventIds.has(event.eventId)) {
         this.logger.warn({
           message: "Duplicate event skipped",
           eventId: event.eventId,
-          event: "order.created",
+          event: EVENT_NAMES.ORDER_CREATED,
         });
         return;
       }
@@ -38,8 +39,8 @@ class PaymentService implements IPaymentService {
         if (success) {
           paid = true;
           const amount = event.items.length * 100;
-          this.eventBus.emit("payment.success", {
-            type: "payment.success",
+          this.eventBus.emit(EVENT_NAMES.PAYMENT_SUCCESS, {
+            type: EVENT_NAMES.PAYMENT_SUCCESS,
             eventId: uuidv4(),
             orderId: event.orderId,
             timestamp: Date.now(),
@@ -57,8 +58,8 @@ class PaymentService implements IPaymentService {
       }
 
       if (!paid) {
-        this.eventBus.emit("payment.failed", {
-          type: "payment.failed",
+        this.eventBus.emit(EVENT_NAMES.PAYMENT_FAILED, {
+          type: EVENT_NAMES.PAYMENT_FAILED,
           eventId: uuidv4(),
           orderId: event.orderId,
           timestamp: Date.now(),

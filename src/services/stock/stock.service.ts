@@ -2,6 +2,7 @@ import { v4 as uuidv4 } from "uuid";
 import type { IStockService } from "./interfaces/stock-service.interface";
 import type { IEventBus } from "@infra/interfaces/event-bus.interface";
 import type { ILogger } from "@infra/interfaces/logger.interface";
+import { EVENT_NAMES } from "@infra/event-bus";
 
 interface StockServiceConfig {
   successRate: number;
@@ -17,12 +18,12 @@ class StockService implements IStockService {
   ) {}
 
   registerHandlers(): void {
-    this.eventBus.on("payment.success", async (event) => {
+    this.eventBus.on(EVENT_NAMES.PAYMENT_SUCCESS, async (event) => {
       if (this.processedEventIds.has(event.eventId)) {
         this.logger.warn({
           message: "Duplicate event skipped",
           eventId: event.eventId,
-          event: "payment.success",
+          event: EVENT_NAMES.PAYMENT_SUCCESS,
         });
         return;
       }
@@ -37,16 +38,16 @@ class StockService implements IStockService {
       });
 
       if (success) {
-        this.eventBus.emit("stock.updated", {
-          type: "stock.updated",
+        this.eventBus.emit(EVENT_NAMES.STOCK_UPDATED, {
+          type: EVENT_NAMES.STOCK_UPDATED,
           eventId: uuidv4(),
           orderId: event.orderId,
           timestamp: Date.now(),
           requestId: event.requestId,
         });
       } else {
-        this.eventBus.emit("stock.failed", {
-          type: "stock.failed",
+        this.eventBus.emit(EVENT_NAMES.STOCK_FAILED, {
+          type: EVENT_NAMES.STOCK_FAILED,
           eventId: uuidv4(),
           orderId: event.orderId,
           timestamp: Date.now(),
