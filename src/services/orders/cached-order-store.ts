@@ -39,7 +39,7 @@ class CachedOrderStore implements IOrderStore {
   updateStatus(id: string, status: OrderStatus): Order | undefined {
     const order = this.store.updateStatus(id, status);
     if (order) {
-      this.cache.invalidate(this.cacheKey(id));
+      this.cache.set(this.cacheKey(id), order, this.ttlSeconds);
     }
     return order;
   }
