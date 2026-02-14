@@ -3,11 +3,9 @@ import type { IOrderService } from "./interfaces/order-service.interface";
 import type { IOrderStore } from "./interfaces/order-store.interface";
 import type { IEventBus } from "@infra/interfaces/event-bus.interface";
 import type { ILogger } from "@infra/interfaces/logger.interface";
-import type { JwtPayload } from "@services/auth/auth.types";
-import type { Order } from "./order.types";
 import type { CreateOrderInput } from "./order.validation";
-import { OrderStatus } from "./order.types";
-import { UserRole } from "@services/auth/auth.types";
+import { OrderStatus, type Order } from "./order.types";
+import { UserRole, type JwtPayload } from "types/auth.types";
 import { EVENT_NAMES } from "@infra/event-bus";
 
 class OrderService implements IOrderService {

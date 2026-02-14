@@ -1,9 +1,4 @@
-enum UserRole {
-  ADMIN = 'admin',
-  BRAND = 'brand',
-  CUSTOMER = 'customer',
-}
-
+import type { UserRole } from "types/auth.types";
 interface User {
   id: string;
   email: string;
@@ -11,13 +6,4 @@ interface User {
   role: UserRole;
   brandId?: string;
 }
-
-interface JwtPayload {
-  userId: string;
-  email: string;
-  role: UserRole;
-  brandId?: string;
-}
-
-export { UserRole };
-export type { User, JwtPayload };
+export type { User };

@@ -1,4 +1,4 @@
-import type { User } from "../auth.types";
+import type { User } from "@services/auth/auth.types";
 
 interface IAuthStore {
   findByEmail(email: string): User | undefined;

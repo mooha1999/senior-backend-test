@@ -1,9 +1,12 @@
-import type { IAuthService, LoginResult } from "./interfaces/auth-service.interface";
+import type {
+  IAuthService,
+  LoginResult,
+} from "./interfaces/auth-service.interface";
 import type { IAuthStore } from "./interfaces/auth-store.interface";
 import type { ITokenProvider } from "@infra/interfaces/token-provider.interface";
 import type { ILogger } from "@infra/interfaces/logger.interface";
 import type { LoginInput } from "./auth.validation";
-import type { JwtPayload } from "./auth.types";
+import type { JwtPayload } from "types/auth.types";
 import { AppError } from "@middleware/error-handler";
 
 class AuthService implements IAuthService {

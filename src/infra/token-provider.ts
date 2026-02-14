@@ -1,6 +1,6 @@
 import jwt from "jsonwebtoken";
 import type { ITokenProvider } from "./interfaces/token-provider.interface";
-import type { JwtPayload } from "@services/auth/auth.types";
+import type { JwtPayload } from "types/auth.types";
 
 class JwtTokenProvider implements ITokenProvider {
   constructor(

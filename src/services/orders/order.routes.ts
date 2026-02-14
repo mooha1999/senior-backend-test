@@ -4,7 +4,7 @@ import type { IOrderService } from "./interfaces/order-service.interface";
 import type { IAuthMiddleware } from "@middleware/auth.middleware";
 import type { AuthorizeMiddleware } from "@middleware/rbac.middleware";
 import { createOrderSchema } from "./order.validation";
-import { UserRole } from "@services/auth/auth.types";
+import { UserRole } from "types/auth.types";
 
 interface OrderRouteDeps {
   orderService: IOrderService;

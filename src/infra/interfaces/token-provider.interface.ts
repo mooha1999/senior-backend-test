@@ -1,4 +1,4 @@
-import type { JwtPayload } from "@services/auth/auth.types";
+import type { JwtPayload } from "types/auth.types";
 
 interface ITokenProvider {
   sign(payload: JwtPayload): string;

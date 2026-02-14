@@ -1,6 +1,6 @@
 import type { User } from "./auth.types";
 import type { IAuthStore } from "./interfaces/auth-store.interface";
-import { UserRole } from "./auth.types";
+import { UserRole } from "types/auth.types";
 
 const seededUsers: User[] = [
   {
